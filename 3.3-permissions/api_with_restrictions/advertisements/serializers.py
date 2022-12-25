@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from advertisements.defs import count_posts
 from advertisements.models import Advertisement
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,8 +40,14 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def validate(self, data):
-        """Метод для валидации. Вызывается при создании и обновлении."""
-
-        # TODO: добавьте требуемую валидацию
-
+        if self.context['request'].method == 'POST':
+            ads = len(Advertisement.objects.filter(status='OPEN', creator=self.context['request'].user))
+            if ads == 10:
+                raise serializers.ValidationError('Максимальное количество объявлений')
+        if self.context['request'].method == 'PUT' or 'PATCH':
+            ads = len(Advertisement.objects.filter(status='OPEN', creator=self.context['request'].user))
+            if ads == 10 and data['status'] == 'OPEN':
+                raise serializers.ValidationError('Максимальное количество объявлений')
+        #     while True:
+        #         raise serializers.ValidationError(self.context)
         return data
