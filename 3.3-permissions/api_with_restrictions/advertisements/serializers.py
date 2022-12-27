@@ -1,7 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-
-from advertisements.defs import count_posts
 from advertisements.models import Advertisement
 
 
